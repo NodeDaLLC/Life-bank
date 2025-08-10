@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game of Life Digital Bank - Financial Management System</title>
+    <meta name="description" content="Digital banking system for managing player finances, loans, and transactions in the Game of Life">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <a href="#main-title" class="skip-link">Skip to main content</a>
+    <div class="container">
+        <header class="header" role="banner">
+            <div class="header-content">
+                <div class="header-brand">
+                    <h1 id="main-title">🏦 Game of Life Digital Bank</h1>
+                    <p id="main-description">Manage your players' finances and loans</p>
+                </div>
+                <nav class="header-nav">
+                    <div class="turn-selector" aria-labelledby="turn-title">
+                        <h2 id="turn-title">🎯 Current Turn</h2>
+                        <div class="turn-controls">
+                            <select id="current-turn" onchange="updateCurrentTurn()" aria-describedby="current-turn-display">
+                                <option value="blue">Blue Vehicle</option>
+                                <option value="green">Green Vehicle</option>
+                                <option value="pink">Pink Vehicle</option>
+                                <option value="yellow">Yellow Vehicle</option>
+                            </select>
+                            <div id="current-turn-display" class="turn-display" role="status" aria-live="polite">
+                                <span class="current-player">Blue Vehicle</span>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <nav class="tab-container" role="navigation" aria-label="Main navigation">
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('players')" aria-pressed="true" aria-controls="players-tab">
+                    <span aria-hidden="true">👥</span> Players
+                </button>
+                <button class="tab-btn" onclick="switchTab('transfers')" aria-pressed="false" aria-controls="transfers-tab">
+                    <span aria-hidden="true">💸</span> Move Money
+                </button>
+                <button class="tab-btn" onclick="switchTab('loans')" aria-pressed="false" aria-controls="loans-tab">
+                    <span aria-hidden="true">💰</span> Loans
+                </button>
+                <button class="tab-btn" onclick="switchTab('retirement')" aria-pressed="false" aria-controls="retirement-tab">
+                    <span aria-hidden="true">🏖️</span> Retirement
+                </button>
+                <button class="tab-btn" onclick="switchTab('history')" aria-pressed="false" aria-controls="history-tab">
+                    <span aria-hidden="true">📊</span> History
+                </button>
+            </div>
+        </nav>
+
+        <main role="main" aria-labelledby="main-title">
+            <!-- Players Tab -->
+            <section id="players-tab" class="tab-content active" aria-labelledby="players-title">
+                <h2 id="players-title">👥 Players</h2>
+                <div id="retirement-status" class="retirement-status" role="region" aria-labelledby="retirement-title">
+                    <h3 id="retirement-title">🏖️ Retirement Status</h3>
+                    <div id="retirement-list" aria-live="polite">No players have retired yet.</div>
+                </div>
+                
+                <div class="players-grid">
+                    <article class="player-card player-blue" role="article" aria-labelledby="blue-player-name">
+                        <div class="player-header">
+                            <div class="player-avatar avatar-blue" aria-hidden="true">B</div>
+                            <h3 id="blue-player-name" class="player-name">Blue Vehicle</h3>
+                        </div>
+                        <div class="balance" aria-label="Blue Vehicle money balance">Money: $<span id="balance-blue" aria-live="polite">0</span></div>
+                        <div class="loan-balance" aria-label="Blue Vehicle loan balance">Loans: $<span id="loan-balance-blue" aria-live="polite">0</span></div>
+                    </article>
+
+                    <article class="player-card player-green" role="article" aria-labelledby="green-player-name">
+                        <div class="player-header">
+                            <div class="player-avatar avatar-green" aria-hidden="true">G</div>
+                            <h3 id="green-player-name" class="player-name">Green Vehicle</h3>
+                        </div>
+                        <div class="balance" aria-label="Green Vehicle money balance">Money: $<span id="balance-green" aria-live="polite">0</span></div>
+                        <div class="loan-balance" aria-label="Green Vehicle loan balance">Loans: $<span id="loan-balance-green" aria-live="polite">0</span></div>
+                    </article>
+
+                    <article class="player-card player-pink" role="article" aria-labelledby="pink-player-name">
+                        <div class="player-header">
+                            <div class="player-avatar avatar-pink" aria-hidden="true">P</div>
+                            <h3 id="pink-player-name" class="player-name">Pink Vehicle</h3>
+                        </div>
+                        <div class="balance" aria-label="Pink Vehicle money balance">Money: $<span id="balance-pink" aria-live="polite">0</span></div>
+                        <div class="loan-balance" aria-label="Pink Vehicle loan balance">Loans: $<span id="loan-balance-pink" aria-live="polite">0</span></div>
+                    </article>
+
+                    <article class="player-card player-yellow" role="article" aria-labelledby="yellow-player-name">
+                        <div class="player-header">
+                            <div class="player-avatar avatar-yellow" aria-hidden="true">Y</div>
+                            <h3 id="yellow-player-name" class="player-name">Yellow Vehicle</h3>
+                        </div>
+                        <div class="balance" aria-label="Yellow Vehicle money balance">Money: $<span id="balance-yellow" aria-live="polite">0</span></div>
+                        <div class="loan-balance" aria-label="Yellow Vehicle loan balance">Loans: $<span id="loan-balance-yellow" aria-live="polite">0</span></div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Move Money Tab -->
+            <section id="transfers-tab" class="tab-content" aria-labelledby="transfers-title">
+                <h2 id="transfers-title">💸 Move Money</h2>
+                
+                <!-- Salary Settings Section -->
+                <div class="section-group">
+                    <h3>💼 Player Salary Settings</h3>
+
+                    <div class="form-group">
+                        <label for="saved-base-pay">Base Pay ($):</label>
+                        <input type="number" id="saved-base-pay" placeholder="Enter base pay amount" min="0" value="20000" onchange="autoSaveSalary()">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="saved-bonus">Bonus ($):</label>
+                        <input type="number" id="saved-bonus" placeholder="Enter bonus amount" min="0" value="0" onchange="autoSaveSalary()">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="saved-job-title">Job Title:</label>
+                        <input type="text" id="saved-job-title" placeholder="e.g., Doctor, Lawyer, Teacher" onchange="autoSaveSalary()">
+                    </div>
+
+                    <button class="transaction-btn" onclick="getPaid()" style="background: #f39c12;">💰 Get Paid</button>
+                    <button class="transaction-btn" onclick="getBonus()" style="background: #9b59b6;">🎁 Get Bonus</button>
+            </div>
+
+                <!-- Custom Transactions Section -->
+                <div class="section-group">
+                    <h3>💳 Custom Transaction</h3>
+                    
+                        <div class="quick-amount-buttons">
+                            <button class="quick-amount-btn" onclick="setCustomAmount(10000)">$10,000</button>
+                            <button class="quick-amount-btn" onclick="setCustomAmount(50000)">$50,000</button>
+                            <button class="quick-amount-btn" onclick="setCustomAmount(100000)">$100,000</button>
+                            <button class="quick-amount-btn" onclick="setCustomAmount(500000)">$500,000</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="custom-amount">Amount ($):</label>
+                        <input type="number" id="custom-amount" placeholder="Enter amount" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="custom-description">Description:</label>
+                        <input type="text" id="custom-description" placeholder="Transaction description">
+                    </div>
+
+                    <button class="transaction-btn" onclick="addCustomTransaction()">Add Money</button>
+                    <button class="transaction-btn remove-btn" onclick="removeCustomTransaction()">Remove Money</button>
+                </div>
+
+                <!-- Money Transfer Section -->
+                <div class="section-group">
+                    <h3>💸 Money Transfer</h3>
+                    
+                    <div class="form-group">
+                        <label for="transfer-from">From Player:</label>
+                        <select id="transfer-from">
+                            <option value="blue">Blue Vehicle</option>
+                            <option value="green">Green Vehicle</option>
+                            <option value="pink">Pink Vehicle</option>
+                            <option value="yellow">Yellow Vehicle</option>
+                            <option value="all-others">All Other Players</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="transfer-to">To Player:</label>
+                        <select id="transfer-to">
+                            <option value="green">Green Vehicle</option>
+                            <option value="blue">Blue Vehicle</option>
+                            <option value="pink">Pink Vehicle</option>
+                            <option value="yellow">Yellow Vehicle</option>
+                            <option value="all-others">All Other Players</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="transfer-amount">Amount ($):</label>
+                        <input type="number" id="transfer-amount" placeholder="Enter transfer amount" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="transfer-description">Description:</label>
+                        <input type="text" id="transfer-description" placeholder="e.g., Rent payment, Gift, Business deal">
+                    </div>
+
+                    <button class="transaction-btn" onclick="processTransfer()" style="background: #9b59b6;">💸 Process Transfer</button>
+                </div>
+            </section>
+
+            <!-- Loans Tab -->
+            <section id="loans-tab" class="tab-content" aria-labelledby="loans-title">
+                <h2 id="loans-title">💰 Quick Loans</h2>
+                <p>Select a player and loan amount:</p>
+                
+                <div class="loan-buttons">
+                    <button class="loan-btn btn-50k" onclick="addLoan('50k')" style="grid-column: 1 / -1; font-size: 1.2rem; padding: 15px;">$50,000 Loan</button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="pay-loan-amount">Amount to Pay ($):</label>
+                    <input type="number" id="pay-loan-amount" placeholder="Enter amount to pay off loan" min="0">
+            </div>
+
+                <button class="loan-btn" onclick="payLoan()" style="background: #27ae60; color: white; grid-column: 1 / -1; font-size: 1.1rem; padding: 12px;">💳 Pay Loan</button>
+            </section>
+
+            <!-- Retirement Tab -->
+            <section id="retirement-tab" class="tab-content" aria-labelledby="retirement-title">
+                <h2 id="retirement-title">🏖️ Retirement</h2>
+                <p style="font-size: 0.9rem; color: #7f8c8d; margin-bottom: 15px;">
+                    Retirement Bonuses: 1st ($200k) | 2nd ($100k) | 3rd ($50k) | 4th ($10k)<br>
+                    Loan Penalty: $60k for every $50k in loans
+                </p>
+                
+                <button class="loan-btn" onclick="retirePlayer()" style="background: #e67e22; color: white; font-size: 1.1rem; padding: 12px;">🏖️ Retire Player</button>
+            </section>
+
+            <!-- History Tab -->
+            <section id="history-tab" class="tab-content" aria-labelledby="history-title">
+                <h2 id="history-title">📊 Transaction History</h2>
+                <div class="transaction-list" id="transaction-list">
+                    <!-- Transactions will be added here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
