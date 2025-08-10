@@ -738,4 +738,50 @@ body {
         margin-right: 0;
         margin-bottom: 10px;
     }
+}
+
+/* Footer Styles */
+.footer {
+    background: #2c3e50;
+    color: white;
+    padding: 30px 0;
+    margin-top: 50px;
+    border-top: 1px solid #34495e;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 30px;
+}
+
+.footer-disclaimer {
+    text-align: center;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    opacity: 0.9;
+}
+
+.footer-disclaimer p {
+    margin: 0 0 10px 0;
+}
+
+.footer-disclaimer p:last-child {
+    margin-bottom: 0;
+}
+
+/* Responsive footer */
+@media (max-width: 768px) {
+    .footer {
+        padding: 20px 0;
+        margin-top: 30px;
+    }
+    
+    .footer-content {
+        padding: 0 20px;
+    }
+    
+    .footer-disclaimer {
+        font-size: 0.8rem;
+    }
 } 
