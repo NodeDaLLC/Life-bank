@@ -37,7 +37,10 @@
 
         <nav class="tab-container" role="navigation" aria-label="Main navigation">
             <div class="tab-buttons">
-                <button class="tab-btn active" onclick="switchTab('players')" aria-pressed="true" aria-controls="players-tab">
+                <button class="tab-btn active" onclick="switchTab('setup')" aria-pressed="true" aria-controls="setup-tab">
+                    <span aria-hidden="true">⚙️</span> Game Setup
+                </button>
+                <button class="tab-btn" onclick="switchTab('players')" aria-pressed="false" aria-controls="players-tab">
                     <span aria-hidden="true">👥</span> Players
                 </button>
                 <button class="tab-btn" onclick="switchTab('transfers')" aria-pressed="false" aria-controls="transfers-tab">
@@ -56,8 +59,71 @@
         </nav>
 
         <main role="main" aria-labelledby="main-title">
+            <!-- Game Setup Tab -->
+            <section id="setup-tab" class="tab-content active" aria-labelledby="setup-title">
+                <h2 id="setup-title">⚙️ Game Setup</h2>
+                
+                <div class="section-group">
+                    <h3>🎮 New Game</h3>
+                    <p>Start a fresh game with custom players and settings.</p>
+                    <button class="transaction-btn" onclick="startNewGame()" style="background: #27ae60;">🆕 Start New Game</button>
+                </div>
+
+                <div class="section-group">
+                    <h3>👥 Player Selection</h3>
+                    <p>Select which players will participate in the game and customize their names.</p>
+                    
+                    <div class="player-setup-grid">
+                        <div class="player-setup-item">
+                            <label class="player-checkbox">
+                                <input type="checkbox" id="player-blue-enabled" checked onchange="updatePlayerSetup()">
+                                <span class="checkmark"></span>
+                                <span class="player-label">Blue Vehicle</span>
+                            </label>
+                            <input type="text" id="player-blue-name" value="Blue Vehicle" placeholder="Enter player name" onchange="updatePlayerSetup()">
+                        </div>
+                        
+                        <div class="player-setup-item">
+                            <label class="player-checkbox">
+                                <input type="checkbox" id="player-green-enabled" checked onchange="updatePlayerSetup()">
+                                <span class="checkmark"></span>
+                                <span class="player-label">Green Vehicle</span>
+                            </label>
+                            <input type="text" id="player-green-name" value="Green Vehicle" placeholder="Enter player name" onchange="updatePlayerSetup()">
+                        </div>
+                        
+                        <div class="player-setup-item">
+                            <label class="player-checkbox">
+                                <input type="checkbox" id="player-pink-enabled" checked onchange="updatePlayerSetup()">
+                                <span class="checkmark"></span>
+                                <span class="player-label">Pink Vehicle</span>
+                            </label>
+                            <input type="text" id="player-pink-name" value="Pink Vehicle" placeholder="Enter player name" onchange="updatePlayerSetup()">
+                        </div>
+                        
+                        <div class="player-setup-item">
+                            <label class="player-checkbox">
+                                <input type="checkbox" id="player-yellow-enabled" checked onchange="updatePlayerSetup()">
+                                <span class="checkmark"></span>
+                                <span class="player-label">Yellow Vehicle</span>
+                            </label>
+                            <input type="text" id="player-yellow-name" value="Yellow Vehicle" placeholder="Enter player name" onchange="updatePlayerSetup()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-group">
+                    <h3>💰 Starting Balance</h3>
+                    <p>Set the initial money balance for all players.</p>
+                    <div class="form-group">
+                        <label for="starting-balance">Starting Balance ($):</label>
+                        <input type="number" id="starting-balance" value="250000" min="0" onchange="updatePlayerSetup()">
+                    </div>
+                </div>
+            </section>
+
             <!-- Players Tab -->
-            <section id="players-tab" class="tab-content active" aria-labelledby="players-title">
+            <section id="players-tab" class="tab-content" aria-labelledby="players-title">
                 <h2 id="players-title">👥 Players</h2>
                 <div id="retirement-status" class="retirement-status" role="region" aria-labelledby="retirement-title">
                     <h3 id="retirement-title">🏖️ Retirement Status</h3>

@@ -1,3 +1,15 @@
+// Game configuration
+let gameConfig = {
+    enabledPlayers: ['blue', 'green', 'pink', 'yellow'],
+    playerNames: {
+        blue: 'Blue Vehicle',
+        green: 'Green Vehicle',
+        pink: 'Pink Vehicle',
+        yellow: 'Yellow Vehicle'
+    },
+    startingBalance: 250000
+};
+
 // Player balances
 let balances = {
     blue: 250000,
@@ -495,23 +507,16 @@ function processTransfer() {
         return;
     }
     
-    const playerNames = {
-        blue: 'Blue Vehicle',
-        green: 'Green Vehicle',
-        pink: 'Pink Vehicle',
-        yellow: 'Yellow Vehicle'
-    };
-    
     if (fromPlayer === 'all-others') {
         // Transfer from all other players to one player
-        const allPlayers = ['blue', 'green', 'pink', 'yellow'];
+        const allPlayers = gameConfig.enabledPlayers;
         const otherPlayers = allPlayers.filter(player => player !== toPlayer);
         const totalReceived = amount * otherPlayers.length;
         
         // Check if all other players have sufficient funds
         const insufficientPlayers = otherPlayers.filter(player => balances[player] < amount);
         if (insufficientPlayers.length > 0) {
-            const insufficientNames = insufficientPlayers.map(player => playerNames[player]).join(', ');
+            const insufficientNames = insufficientPlayers.map(player => gameConfig.playerNames[player]).join(', ');
             alert(`Insufficient funds! The following players don't have enough money: ${insufficientNames}`);
             return;
         }
@@ -526,7 +531,7 @@ function processTransfer() {
                 id: Date.now() + Math.random(),
                 player: player,
                 amount: -amount,
-                description: `Transfer to ${playerNames[toPlayer]}: ${description}`,
+                description: `Transfer to ${gameConfig.playerNames[toPlayer]}: ${description}`,
                 type: 'transfer',
                 timestamp: new Date()
             };
@@ -551,12 +556,12 @@ function processTransfer() {
         updateTransactionList();
         
         // Show success message
-        const otherPlayerNames = otherPlayers.map(player => playerNames[player]).join(', ');
-        alert(`💸 Transfer from all others completed!\n${otherPlayerNames} → ${playerNames[toPlayer]}\nAmount per player: $${amount.toLocaleString()}\nTotal received: $${totalReceived.toLocaleString()}\nDescription: ${description}`);
+        const otherPlayerNames = otherPlayers.map(player => gameConfig.playerNames[player]).join(', ');
+        alert(`💸 Transfer from all others completed!\n${otherPlayerNames} → ${gameConfig.playerNames[toPlayer]}\nAmount per player: $${amount.toLocaleString()}\nTotal received: $${totalReceived.toLocaleString()}\nDescription: ${description}`);
         
     } else if (toPlayer === 'all-others') {
         // Transfer to all other players
-        const allPlayers = ['blue', 'green', 'pink', 'yellow'];
+        const allPlayers = gameConfig.enabledPlayers;
         const otherPlayers = allPlayers.filter(player => player !== fromPlayer);
         const totalCost = amount * otherPlayers.length;
         
@@ -577,7 +582,7 @@ function processTransfer() {
                 id: Date.now() + Math.random(),
                 player: player,
                 amount: amount,
-                description: `Transfer from ${playerNames[fromPlayer]}: ${description}`,
+                description: `Transfer from ${gameConfig.playerNames[fromPlayer]}: ${description}`,
                 type: 'transfer',
                 timestamp: new Date()
             };
@@ -795,14 +800,7 @@ function getPaid() {
     updateTransactionList();
     
     // Show success message
-    const playerNames = {
-        blue: 'Blue Vehicle',
-        green: 'Green Vehicle',
-        pink: 'Pink Vehicle',
-        yellow: 'Yellow Vehicle'
-    };
-    
-    alert(`💰 ${playerNames[player]} got paid!\nAmount: $${basePay.toLocaleString()}\nJob: ${jobTitle}`);
+    alert(`💰 ${gameConfig.playerNames[player]} got paid!\nAmount: $${basePay.toLocaleString()}\nJob: ${jobTitle}`);
 }
 
 // Get bonus function
@@ -833,14 +831,7 @@ function getBonus() {
     updateTransactionList();
     
     // Show success message
-    const playerNames = {
-        blue: 'Blue Vehicle',
-        green: 'Green Vehicle',
-        pink: 'Pink Vehicle',
-        yellow: 'Yellow Vehicle'
-    };
-    
-    alert(`🎁 ${playerNames[player]} got a bonus!\nAmount: $${bonus.toLocaleString()}\nJob: ${jobTitle}`);
+    alert(`🎁 ${gameConfig.playerNames[player]} got a bonus!\nAmount: $${bonus.toLocaleString()}\nJob: ${jobTitle}`);
 }
 
 // Update current turn
@@ -855,15 +846,8 @@ function updateCurrentTurn() {
         yellow: '#f1c40f'
     };
     
-    const playerNames = {
-        blue: 'Blue Vehicle',
-        green: 'Green Vehicle',
-        pink: 'Pink Vehicle',
-        yellow: 'Yellow Vehicle'
-    };
-    
     const displayElement = document.getElementById('current-turn-display');
-    displayElement.innerHTML = `Current Turn: <span style="color: ${playerColors[currentTurn]};">${playerNames[currentTurn]}</span>`;
+    displayElement.innerHTML = `Current Turn: <span style="color: ${playerColors[currentTurn]};">${gameConfig.playerNames[currentTurn]}</span>`;
     
     // Load salary settings for the current player
     loadPlayerSalary();
@@ -871,24 +855,14 @@ function updateCurrentTurn() {
 
 // Initialize the app
 function init() {
-    updateBalance('blue');
-    updateBalance('green');
-    updateBalance('pink');
-    updateBalance('yellow');
-    updateLoanBalance('blue');
-    updateLoanBalance('green');
-    updateLoanBalance('pink');
-    updateLoanBalance('yellow');
-    updateTransactionList();
+    // Load game configuration
+    loadGameConfig();
     
-    // Load initial salary settings for the first player
-    loadPlayerSalary();
+    // Update all displays
+    updateAllDisplays();
     
     // Initialize current turn display
     updateCurrentTurn();
-    
-    // Initialize retirement display
-    updateRetirementDisplay();
 }
 
 // Switch tabs
@@ -920,6 +894,179 @@ function switchTab(tabName) {
     selectedButton.classList.add('active');
     selectedButton.style.background = '#3498db';
     selectedButton.style.color = 'white';
+}
+
+// Game Setup Functions
+function updatePlayerSetup() {
+    const colors = ['blue', 'green', 'pink', 'yellow'];
+    const newEnabledPlayers = [];
+    const newPlayerNames = {};
+    
+    colors.forEach(color => {
+        const enabled = document.getElementById(`player-${color}-enabled`).checked;
+        const name = document.getElementById(`player-${color}-name`).value.trim() || `${color.charAt(0).toUpperCase() + color.slice(1)} Vehicle`;
+        
+        if (enabled) {
+            newEnabledPlayers.push(color);
+        }
+        newPlayerNames[color] = name;
+    });
+    
+    const startingBalance = parseInt(document.getElementById('starting-balance').value) || 250000;
+    
+    gameConfig.enabledPlayers = newEnabledPlayers;
+    gameConfig.playerNames = newPlayerNames;
+    gameConfig.startingBalance = startingBalance;
+    
+    // Save to localStorage
+    localStorage.setItem('gameConfig', JSON.stringify(gameConfig));
+}
+
+function startNewGame() {
+    if (gameConfig.enabledPlayers.length === 0) {
+        alert('Please enable at least one player to start a game.');
+        return;
+    }
+    
+    if (gameConfig.enabledPlayers.length === 1) {
+        alert('Please enable at least two players to start a game.');
+        return;
+    }
+    
+    // Reset all game data
+    balances = {};
+    loanBalances = {};
+    retiredPlayers = [];
+    retirementOrder = [];
+    transactions = [];
+    
+    // Initialize enabled players
+    gameConfig.enabledPlayers.forEach(color => {
+        balances[color] = gameConfig.startingBalance;
+        loanBalances[color] = 0;
+        playerSalaries[color] = { basePay: 20000, bonus: 0, jobTitle: 'Teacher' };
+    });
+    
+    // Set first enabled player as current turn
+    currentTurn = gameConfig.enabledPlayers[0];
+    
+    // Update all displays
+    updateAllDisplays();
+    
+    // Switch to Players tab
+    switchTab('players');
+    
+    alert(`New game started with ${gameConfig.enabledPlayers.length} players!\nStarting balance: $${gameConfig.startingBalance.toLocaleString()}`);
+}
+
+function updateAllDisplays() {
+    // Update player cards
+    const colors = ['blue', 'green', 'pink', 'yellow'];
+    colors.forEach(color => {
+        const card = document.querySelector(`.player-${color}`);
+        if (card) {
+            if (gameConfig.enabledPlayers.includes(color)) {
+                card.style.display = 'block';
+                updateBalance(color);
+                updateLoanBalance(color);
+                
+                // Update player name
+                const nameElement = document.getElementById(`${color}-player-name`);
+                if (nameElement) {
+                    nameElement.textContent = gameConfig.playerNames[color];
+                }
+            } else {
+                card.style.display = 'none';
+            }
+        }
+    });
+    
+    // Update turn selector
+    const turnSelect = document.getElementById('current-turn');
+    if (turnSelect) {
+        turnSelect.innerHTML = '';
+        gameConfig.enabledPlayers.forEach(color => {
+            const option = document.createElement('option');
+            option.value = color;
+            option.textContent = gameConfig.playerNames[color];
+            turnSelect.appendChild(option);
+        });
+        turnSelect.value = currentTurn;
+    }
+    
+    // Update transfer dropdowns
+    updateTransferDropdowns();
+    
+    // Update transaction list
+    updateTransactionList();
+    
+    // Update retirement display
+    updateRetirementDisplay();
+    
+    // Load salary settings for current player
+    loadPlayerSalary();
+}
+
+function updateTransferDropdowns() {
+    const fromSelect = document.getElementById('transfer-from');
+    const toSelect = document.getElementById('transfer-to');
+    
+    if (fromSelect && toSelect) {
+        // Clear existing options
+        fromSelect.innerHTML = '';
+        toSelect.innerHTML = '';
+        
+        // Add enabled players
+        gameConfig.enabledPlayers.forEach(color => {
+            const fromOption = document.createElement('option');
+            fromOption.value = color;
+            fromOption.textContent = gameConfig.playerNames[color];
+            fromSelect.appendChild(fromOption);
+            
+            const toOption = document.createElement('option');
+            toOption.value = color;
+            toOption.textContent = gameConfig.playerNames[color];
+            toSelect.appendChild(toOption);
+        });
+        
+        // Add "All Other Players" option
+        const allOthersOption = document.createElement('option');
+        allOthersOption.value = 'all-others';
+        allOthersOption.textContent = 'All Other Players';
+        fromSelect.appendChild(allOthersOption);
+        toSelect.appendChild(allOthersOption);
+        
+        // Set default selections
+        if (gameConfig.enabledPlayers.length > 1) {
+            fromSelect.value = gameConfig.enabledPlayers[0];
+            toSelect.value = gameConfig.enabledPlayers[1];
+        }
+    }
+}
+
+// Load game configuration from localStorage
+function loadGameConfig() {
+    const savedConfig = localStorage.getItem('gameConfig');
+    if (savedConfig) {
+        gameConfig = JSON.parse(savedConfig);
+        
+        // Update UI to reflect saved config
+        const colors = ['blue', 'green', 'pink', 'yellow'];
+        colors.forEach(color => {
+            const enabledCheckbox = document.getElementById(`player-${color}-enabled`);
+            const nameInput = document.getElementById(`player-${color}-name`);
+            
+            if (enabledCheckbox && nameInput) {
+                enabledCheckbox.checked = gameConfig.enabledPlayers.includes(color);
+                nameInput.value = gameConfig.playerNames[color];
+            }
+        });
+        
+        const startingBalanceInput = document.getElementById('starting-balance');
+        if (startingBalanceInput) {
+            startingBalanceInput.value = gameConfig.startingBalance;
+        }
+    }
 }
 
 // Start the app
